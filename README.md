@@ -28,7 +28,7 @@ cargo run --release
 
 Supported URL types: Apple Music album, track, and playlist links.
 
-Downloaded files are saved to `downloads/` at 320 kbps by default.
+Downloaded files are saved to `appldown/` inside your system's Downloads folder (e.g. `~/Downloads/appldown`) at 320 kbps by default.
 
 ## Disclaimer
 

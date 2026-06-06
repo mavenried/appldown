@@ -5,6 +5,14 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crate::itunes::{self, TrackData};
 use crate::download;
 
+fn default_output_dir() -> String {
+    dirs::download_dir()
+        .map(|d| d.join("appldown"))
+        .unwrap_or_else(|| std::path::PathBuf::from("downloads"))
+        .to_string_lossy()
+        .into_owned()
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum TrackStatus {
     Pending,
@@ -77,7 +85,7 @@ impl App {
             downloading: false,
             progress: (0, 0),
             tick: 0,
-            output_dir: "downloads".to_string(),
+            output_dir: default_output_dir(),
             quality: "320".to_string(),
             tx,
             next_id: 0,

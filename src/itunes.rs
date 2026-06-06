@@ -190,6 +190,19 @@ fn fetch_playlist(url: &str) -> Result<Vec<TrackData>> {
 }
 
 fn scrape_tracks_from_html(html: &str) -> Vec<(String, String, String)> {
+    let re_serialized = Regex::new(
+        r#"(?s)<script[^>]+id=["']serialized-server-data["'][^>]*>(.*?)</script>"#,
+    )
+    .unwrap();
+    if let Some(cap) = re_serialized.captures(html) {
+        if let Ok(data) = serde_json::from_str::<serde_json::Value>(&cap[1]) {
+            let tracks = extract_serialized_tracks(&data);
+            if !tracks.is_empty() {
+                return tracks;
+            }
+        }
+    }
+
     let re_jsonld = Regex::new(
         r#"(?s)<script[^>]+type=["']application/ld\+json["'][^>]*>(.*?)</script>"#,
     )
@@ -217,6 +230,45 @@ fn scrape_tracks_from_html(html: &str) -> Vec<(String, String, String)> {
     }
 
     Vec::new()
+}
+
+fn extract_serialized_tracks(v: &serde_json::Value) -> Vec<(String, String, String)> {
+    let mut out = Vec::new();
+    match v {
+        serde_json::Value::Object(obj) => {
+            let is_song = obj
+                .get("contentDescriptor")
+                .and_then(|c| c.get("kind"))
+                .and_then(|k| k.as_str())
+                == Some("song");
+            if is_song {
+                let title = obj.get("title").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                let artist = obj.get("artistName").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                if !title.is_empty() && !artist.is_empty() {
+                    let album = obj
+                        .get("tertiaryLinks")
+                        .and_then(|v| v.as_array())
+                        .and_then(|a| a.first())
+                        .and_then(|t| t.get("title"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    out.push((artist, title, album));
+                    return out;
+                }
+            }
+            for (_, val) in obj {
+                out.extend(extract_serialized_tracks(val));
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for item in arr {
+                out.extend(extract_serialized_tracks(item));
+            }
+        }
+        _ => {}
+    }
+    out
 }
 
 fn extract_jsonld_tracks(v: &serde_json::Value) -> Vec<(String, String, String)> {
@@ -321,4 +373,3 @@ mod urlencoding {
         out
     }
 }
-
