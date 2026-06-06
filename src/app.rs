@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEvent, MouseEventKind};
 
 use crate::itunes::{self, TrackData};
 use crate::download;
@@ -50,7 +50,7 @@ pub struct App {
     pub urls: Vec<String>,
 
     pub tracks: Vec<Track>,
-    pub track_offset: usize,
+    pub track_selected: Option<usize>,
 
     pub input: String,
     pub cursor: usize,
@@ -76,7 +76,7 @@ impl App {
         let mut app = Self {
             urls: Vec::new(),
             tracks: Vec::new(),
-            track_offset: 0,
+            track_selected: None,
             input: String::new(),
             cursor: 0,
             log: Vec::new(),
@@ -158,13 +158,6 @@ impl App {
             }
             KeyCode::Char(c) => self.insert_char(c),
 
-            KeyCode::Up => self.track_offset = self.track_offset.saturating_sub(1),
-            KeyCode::Down => {
-                if self.track_offset + 1 < self.tracks.len() {
-                    self.track_offset += 1;
-                }
-            }
-
             KeyCode::PageUp => self.log_scroll += 5,
             KeyCode::PageDown => self.log_scroll = self.log_scroll.saturating_sub(5),
 
@@ -205,6 +198,28 @@ impl App {
             .unwrap_or(self.input.len())
     }
 
+    pub fn handle_mouse(&mut self, mouse: MouseEvent) {
+        match mouse.kind {
+            MouseEventKind::ScrollUp => {
+                if !self.tracks.is_empty() {
+                    self.track_selected = Some(match self.track_selected {
+                        Some(i) => i.saturating_sub(1),
+                        None => 0,
+                    });
+                }
+            }
+            MouseEventKind::ScrollDown => {
+                if !self.tracks.is_empty() {
+                    self.track_selected = Some(match self.track_selected {
+                        Some(i) => (i + 1).min(self.tracks.len() - 1),
+                        None => 0,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+
     pub fn handle_msg(&mut self, msg: AppMsg) {
         match msg {
             AppMsg::TrackAdded(data) => {
@@ -239,7 +254,7 @@ impl App {
         self.progress = (0, 0);
         self.fetching = false;
         self.downloading = false;
-        self.track_offset = 0;
+        self.track_selected = None;
         self.log(LogEntry::Dim("Cleared.".into()));
     }
 

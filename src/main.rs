@@ -53,10 +53,14 @@ fn run(
         }
 
         if event::poll(Duration::from_millis(50))? {
-            if let Event::Key(key) = event::read()? {
-                if app.handle_key(key) {
-                    break;
+            match event::read()? {
+                Event::Key(key) => {
+                    if app.handle_key(key) {
+                        break;
+                    }
                 }
+                Event::Mouse(mouse) => app.handle_mouse(mouse),
+                _ => {}
             }
         }
 

@@ -36,6 +36,8 @@ pub fn download_track(data: &TrackData, output_dir: &str, quality: &str) -> Resu
             "mp3",
             "--audio-quality",
             &format!("{quality}k"),
+            "--match-filter",
+            "duration < 1200",
             "--no-playlist",
             "--quiet",
             "--no-warnings",

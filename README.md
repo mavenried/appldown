@@ -22,7 +22,7 @@ cargo run --release
 | `F6`     | Download all pending tracks  |
 | `Ctrl+D` | Same as `F6`                 |
 | `Ctrl+L` | Clear URLs, tracks, and log  |
-| `↑` / `↓`| Scroll the track table       |
+| Mouse wheel | Scroll the track table    |
 | `PageUp` / `PageDown` | Scroll the log    |
 | `Ctrl+C` / `q` | Quit                   |
 

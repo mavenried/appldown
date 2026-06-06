@@ -194,7 +194,7 @@ fn draw_track_table(f: &mut Frame, app: &App, area: Rect) {
         .row_highlight_style(Style::default().reversed());
 
     let mut state = TableState::default();
-    *state.offset_mut() = app.track_offset;
+    state.select(app.track_selected);
 
     f.render_stateful_widget(table, area, &mut state);
     let _ = inner;
