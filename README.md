@@ -15,16 +15,16 @@ Paste an Apple Music URL, fetch its track list via the iTunes API, then download
 cargo run --release
 ```
 
-| Key      | Action                       |
-| -------- | ---------------------------- |
-| `Enter`  | Queue the pasted URL         |
-| `F5`     | Fetch track lists for queued URLs |
-| `F6`     | Download all pending tracks  |
-| `Ctrl+D` | Same as `F6`                 |
-| `Ctrl+L` | Clear URLs, tracks, and log  |
-| Mouse wheel | Scroll the track table    |
-| `PageUp` / `PageDown` | Scroll the log    |
-| `Ctrl+C` / `q` | Quit                   |
+| Key                   | Action                            |
+| --------------------- | --------------------------------- |
+| `Enter`               | Queue the pasted URL              |
+| `F5`                  | Fetch track lists for queued URLs |
+| `F6`                  | Download all pending tracks       |
+| `Ctrl+D`              | Same as `F6`                      |
+| `Ctrl+L`              | Clear URLs, tracks, and log       |
+| Mouse wheel           | Scroll the track table            |
+| `PageUp` / `PageDown` | Scroll the log                    |
+| `Ctrl+C` / `q`        | Quit                              |
 
 Supported URL types: Apple Music album, track, and playlist links.
 
