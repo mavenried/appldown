@@ -70,6 +70,15 @@ pub fn resolve_url(raw_url: &str) -> Result<Vec<TrackData>> {
         return fetch_playlist(raw_url);
     }
 
+    if parts.contains(&"song") || parts.contains(&"music-video") {
+        let track_id = parts
+            .iter()
+            .rev()
+            .find(|&&p| p.chars().all(|c| c.is_ascii_digit()))
+            .ok_or_else(|| anyhow!("No track ID found in URL"))?;
+        return fetch_track(track_id);
+    }
+
     if parts.contains(&"album") {
         let qs: std::collections::HashMap<String, String> = parsed
             .query_pairs()
